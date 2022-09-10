@@ -1,0 +1,8 @@
+# General
+.DS_Store
+
+# bin
+app/app
+
+# code coverage report
+cover.out
