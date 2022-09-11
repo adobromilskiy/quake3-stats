@@ -1,6 +1,10 @@
 package api
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type (
 	Match struct {
@@ -37,4 +41,21 @@ type (
 		Pickups int    `json:"pickups"`
 		Time    int    `json:"time"`
 	}
+
+	FFAResponse struct {
+		TotalGames int    `json:"total_games"`
+		Duration   string `json:"duration"`
+	}
+
+	DayDuration int
 )
+
+// based on day work time
+func (d DayDuration) String() string {
+	days := d / 28800
+	h := d / 3600 % 8
+	m := (d % 3600) / 60
+	s := (d % 3600) % 60
+
+	return fmt.Sprintf("%dd %dh %dm %ds", days, h, m, s)
+}

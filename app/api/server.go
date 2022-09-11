@@ -39,7 +39,6 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var matches []Match
 
-	// totalGames, err := col.CountDocuments(r.Context(), bson.M{"type": "FFA"})
 	cur, err := col.Find(ctx, bson.M{"type": "FFA"})
 	for cur.Next(ctx) {
 		var m Match
@@ -65,10 +64,22 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var totalTime int
+	for _, m := range matches {
+		totalTime += m.Duration
+	}
+
+	duration := (DayDuration)(totalTime)
+
+	resp := FFAResponse{
+		TotalGames: len(matches),
+		Duration:   duration.String(),
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	err = json.NewEncoder(w).Encode(matches)
+	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		log.Printf("[ERROR] failed to marshal data: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
