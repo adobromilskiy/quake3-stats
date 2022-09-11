@@ -6,3 +6,6 @@ app/app
 
 # code coverage report
 cover.out
+
+# mongo playground
+*.mongodb

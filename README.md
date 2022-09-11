@@ -7,6 +7,6 @@ Required parameters has no default value.
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| port   | `8080`   | port to listen |
+| port   | `:8080`   | port to listen |
 | dbconn |          | database connection string |
 | dbname | `quake3` | database name |
