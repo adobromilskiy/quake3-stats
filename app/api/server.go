@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -35,31 +34,13 @@ func (s *Server) routes() *http.ServeMux {
 }
 
 func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
-	col := s.Database.Collection("matches")
-	ctx := r.Context()
-	var matches []Match
-
-	cur, err := col.Find(ctx, bson.M{"type": "FFA"})
-	for cur.Next(ctx) {
-		var m Match
-		err := cur.Decode(&m)
-		if err != nil {
-			log.Printf("[ERROR] failed to collect data: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		matches = append(matches, m)
+	repo := MatchRepository{
+		Ctx: r.Context(),
+		DB:  s.Database,
 	}
-
-	if err := cur.Err(); err != nil {
-		log.Printf("[ERROR] failed to collect data: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
+	matches, err := repo.getAll()
 	if err != nil {
-		log.Printf("[ERROR] failed to collect data: %s", err)
+		log.Printf("[ERROR] failed to get matches: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
