@@ -46,6 +46,29 @@ func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for i := range players {
+		players[i].Weapons, err = repo.getPlayerWeapons("FFA", players[i].Name)
+		if err != nil {
+			log.Printf("[ERROR] failed to get player weapons: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		players[i].Items, err = repo.getPlayerItems("FFA", players[i].Name)
+		if err != nil {
+			log.Printf("[ERROR] failed to get player items: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		players[i].Powerups, err = repo.getPlayerPowerups("FFA", players[i].Name)
+		if err != nil {
+			log.Printf("[ERROR] failed to get player powerups: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
