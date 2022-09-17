@@ -3,7 +3,7 @@ volumes:
 
 services:
   db:
-    image: mongo:4.2
+    image: mongo:6.0
     hostname: db
     volumes:
       - quakedata:/data/db
