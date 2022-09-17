@@ -21,6 +21,9 @@ func (r *MatchRepository) getPlayers() (res []Player, err error) {
 		{"$unwind": "$players"},
 		{"$group": bson.M{
 			"_id": "$players.name",
+			"games": bson.M{
+				"$sum": 1,
+			},
 			"score": bson.M{
 				"$sum": "$players.score",
 			},

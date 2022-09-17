@@ -9,6 +9,7 @@ type (
 
 	Player struct {
 		Name        string   `json:"name" bson:"_id"`
+		Games       int      `json:"games" bson:"games"`
 		Score       int      `json:"score" bson:"score"`
 		Kills       uint     `json:"kills" bson:"kills"`
 		Deaths      uint     `json:"deaths" bson:"deaths"`
