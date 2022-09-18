@@ -94,6 +94,10 @@ func (r *MatchRepository) getTotalDuration() (res DayDuration, err error) {
 		return 0, err
 	}
 
+	if len(count) == 0 {
+		return 0, nil
+	}
+
 	return count[0].Duration, nil
 }
 
@@ -123,6 +127,10 @@ func (r *MatchRepository) getTotalMatches() (res int, err error) {
 
 	if err = cur.All(r.Ctx, &count); err != nil {
 		return 0, err
+	}
+
+	if len(count) == 0 {
+		return 0, nil
 	}
 
 	return count[0].Count, nil
