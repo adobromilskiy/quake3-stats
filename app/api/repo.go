@@ -294,32 +294,11 @@ func (r *MatchRepository) getMaps(mtype string) (res []Map, err error) {
 			"_id": "$map",
 			"winners": bson.M{
 				"$accumulator": bson.M{
-					"init": func() []MapWinner {
-						return []MapWinner{}
-					},
-					"accumulate": func(state []MapWinner, player string) []MapWinner {
-						for _, w := range state {
-							if w.Name == player {
-								w.Wins++
-								return state
-							}
-						}
-						state = append(state, MapWinner{Name: player, Wins: 1})
-						return state
-					},
-					"accumulateArgs": []string{"$playername"},
-					"merge": func(state []MapWinner, other []MapWinner) []MapWinner {
-						for _, w := range other {
-							for _, s := range state {
-								if s.Name == w.Name {
-									s.Wins += w.Wins
-									break
-								}
-							}
-							state = append(state, w)
-						}
-						return state
-					},
+					"init":           "function() {return []}",
+					"accumulate":     "function(state, player) {for (var i = 0; i < state.length; i++) {if (state[i].playername == player) {state[i].wins++;return state;}}state.push({ \"playername\": player, \"wins\": 1});return state;}",
+					"accumulateArgs": bson.A{"$playername"},
+					"merge":          "function(state, other) {for (var i = 0; i < other.length; i++) {for (var j = 0; j < state.length; j++) {if (state[j].playername == other[i].playername) {state[j].wins += other[i].wins;break;}state.push(other[i]);}}return state;}",
+					"lang":           "js",
 				},
 			},
 		}},
