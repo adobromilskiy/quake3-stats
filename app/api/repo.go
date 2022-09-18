@@ -229,3 +229,109 @@ func (r *MatchRepository) getPlayerPowerups(mtype, player string) (res []Item, e
 
 	return res, nil
 }
+
+func (r *MatchRepository) getWinners(mtype string) (res []Winner, err error) {
+	coll := r.DB.Collection("matches")
+	var cur *mongo.Cursor
+
+	cur, err = coll.Aggregate(r.Ctx, []bson.M{
+		{"$match": bson.M{"type": mtype}},
+		{"$unwind": "$players"},
+		{"$sort": bson.M{"players.score": -1}},
+		{"$group": bson.M{
+			"_id": "$datetime",
+			"score": bson.M{
+				"$first": "$players.score",
+			},
+			"map": bson.M{
+				"$first": "$map",
+			},
+			"playername": bson.M{
+				"$first": "$players.name",
+			},
+		}},
+		{"$group": bson.M{
+			"_id": "$playername",
+			"wins": bson.M{
+				"$sum": 1,
+			},
+		}},
+		{"$sort": bson.M{"wins": -1}},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cur.All(r.Ctx, &res); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+func (r *MatchRepository) getMaps(mtype string) (res []Map, err error) {
+	coll := r.DB.Collection("matches")
+	var cur *mongo.Cursor
+
+	cur, err = coll.Aggregate(r.Ctx, []bson.M{
+		{"$match": bson.M{"type": mtype}},
+		{"$unwind": "$players"},
+		{"$sort": bson.M{"players.score": -1}},
+		{"$group": bson.M{
+			"_id": "$datetime",
+			"score": bson.M{
+				"$first": "$players.score",
+			},
+			"map": bson.M{
+				"$first": "$map",
+			},
+			"playername": bson.M{
+				"$first": "$players.name",
+			},
+		}},
+		{"$group": bson.M{
+			"_id": "$map",
+			"winners": bson.M{
+				"$accumulator": bson.M{
+					"init": func() []MapWinner {
+						return []MapWinner{}
+					},
+					"accumulate": func(state []MapWinner, player string) []MapWinner {
+						for _, w := range state {
+							if w.Name == player {
+								w.Wins++
+								return state
+							}
+						}
+						state = append(state, MapWinner{Name: player, Wins: 1})
+						return state
+					},
+					"accumulateArgs": []string{"$playername"},
+					"merge": func(state []MapWinner, other []MapWinner) []MapWinner {
+						for _, w := range other {
+							for _, s := range state {
+								if s.Name == w.Name {
+									s.Wins += w.Wins
+									break
+								}
+							}
+							state = append(state, w)
+						}
+						return state
+					},
+				},
+			},
+		}},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cur.All(r.Ctx, &res); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}

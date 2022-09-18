@@ -99,14 +99,32 @@ func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	winners, err := repo.getWinners("FFA")
+	if err != nil {
+		log.Printf("[ERROR] failed to get winners: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	maps, err := repo.getMaps("FFA")
+	if err != nil {
+		log.Printf("[ERROR] failed to maps: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	type Response struct {
-		TotalGames int    `json:"total_games"`
-		Duration   string `json:"duration"`
+		TotalGames int      `json:"total_games"`
+		Duration   string   `json:"duration"`
+		Winners    []Winner `json:"winners"`
+		Maps       []Map    `json:"maps"`
 	}
 
 	resp := Response{
 		TotalGames: total,
 		Duration:   duration.String(),
+		Winners:    winners,
+		Maps:       maps,
 	}
 
 	err = json.NewEncoder(w).Encode(resp)

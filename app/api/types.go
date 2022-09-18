@@ -35,6 +35,21 @@ type (
 		Pickups uint   `json:"pickups" bson:"pickups"`
 		Time    uint   `json:"time,omitempty" bson:"time,omitempty"`
 	}
+
+	Winner struct {
+		Name string `json:"name" bson:"_id"`
+		Wins int    `json:"wins" bson:"wins"`
+	}
+
+	MapWinner struct {
+		Name string `json:"name" bson:"playername"`
+		Wins int    `json:"wins" bson:"wins"`
+	}
+
+	Map struct {
+		Name    string      `json:"name" bson:"_id"`
+		Winners []MapWinner `json:"winners" bson:"winners"`
+	}
 )
 
 // based on day work time
