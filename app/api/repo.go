@@ -322,3 +322,25 @@ func (r *MatchRepository) getMaps(mtype string) (res []Map, err error) {
 
 	return res, nil
 }
+
+func (r *MatchRepository) getMatches(mtype string, limit, skip int) (res []Match, err error) {
+	coll := r.DB.Collection("matches")
+	var cur *mongo.Cursor
+
+	cur, err = coll.Aggregate(r.Ctx, []bson.M{
+		{"$match": bson.M{"type": mtype}},
+		{"$sort": bson.M{"datetime": -1}},
+		{"$limit": limit},
+		{"$skip": skip},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cur.All(r.Ctx, &res); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}

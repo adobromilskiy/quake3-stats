@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -28,8 +29,9 @@ func (s *Server) Run() {
 
 func (s *Server) routes() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/ffa/players", s.getFAAplayers)
 	mux.HandleFunc("/api/ffa", s.getFAAtotals)
+	mux.HandleFunc("/api/ffa/matches", s.getFAAmatches)
+	mux.HandleFunc("/api/ffa/players", s.getFAAplayers)
 
 	return mux
 }
@@ -128,6 +130,41 @@ func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		log.Printf("[ERROR] failed to marshal data: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
+	repo := MatchRepository{
+		Ctx: r.Context(),
+		DB:  s.Database,
+	}
+
+	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page == 0 {
+		page = 1
+	}
+	if perpage == 0 {
+		perpage = 10
+	}
+	skip := (page - 1) * perpage
+	limit := skip + perpage
+
+	matches, err := repo.getMatches("FFA", limit, skip)
+	if err != nil {
+		log.Printf("[ERROR] failed to get matches: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(matches)
 	if err != nil {
 		log.Printf("[ERROR] failed to marshal data: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)

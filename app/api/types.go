@@ -2,10 +2,46 @@ package api
 
 import (
 	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type (
 	DayDuration int
+
+	Match struct {
+		ID       primitive.ObjectID `json:"id" bson:"_id"`
+		Map      string             `json:"map" bson:"map"`
+		Type     string             `json:"type" bson:"type"`
+		Duration uint               `json:"duration" bson:"duration"`
+		Datetime string             `json:"datetime" bson:"datetime"`
+		Players  []struct {
+			Name        string `json:"name" bson:"name"`
+			Score       int    `json:"score" bson:"score"`
+			Kills       uint   `json:"kills" bson:"kills"`
+			Deaths      uint   `json:"deaths" bson:"deaths"`
+			Suicides    uint   `json:"suicides" bson:"suicides"`
+			DamageGiven uint   `json:"damage_given" bson:"damage_given"`
+			DamageTaken uint   `json:"damage_taken" bson:"damage_taken"`
+			HealtTotal  uint   `json:"health_total" bson:"health_total"`
+			ArmorTotal  uint   `json:"armor_total" bson:"armor_total"`
+			Weapons     []struct {
+				Name  string `json:"name" bson:"name"`
+				Hits  uint   `json:"hits" bson:"hits"`
+				Shots uint   `json:"shots" bson:"shots"`
+				Kills uint   `json:"kills" bson:"kills"`
+			} `json:"weapons" bson:"weapons"`
+			Items []struct {
+				Name    string `json:"name" bson:"name"`
+				Pickups uint   `json:"pickups" bson:"pickups"`
+			} `json:"items" bson:"items"`
+			Powerups []struct {
+				Name    string `json:"name" bson:"name"`
+				Pickups uint   `json:"pickups" bson:"pickups"`
+				Time    uint   `json:"time" bson:"time"`
+			} `json:"powerups" bson:"powerups"`
+		} `json:"players" bson:"players"`
+	}
 
 	Player struct {
 		Name        string   `json:"name" bson:"_id"`
