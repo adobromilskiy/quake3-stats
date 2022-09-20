@@ -36,6 +36,7 @@ func (s *Server) routes() *http.ServeMux {
 	return mux
 }
 
+// GET: /api/ffa/players
 func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
@@ -82,6 +83,7 @@ func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GET: /api/ffa
 func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
@@ -137,6 +139,7 @@ func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GET: /api/ffa/matches
 func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),

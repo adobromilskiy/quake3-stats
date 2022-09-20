@@ -14,5 +14,9 @@ services:
     build: .
     hostname: app
     command: --dbconn=mongodb://db:27017
+
+  nginx:
+    build: ./nginx
+    hostname: nginx
     ports:
-      - "8080:8080"
+      - "8080:80"
