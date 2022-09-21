@@ -306,10 +306,12 @@ func (r *MatchRepository) getMaps(mtype string) (res []Map, err error) {
 					"accumulate":     "function(state, player) {for (var i = 0; i < state.length; i++) {if (state[i].playername == player) {state[i].wins++;return state;}}state.push({ \"playername\": player, \"wins\": 1});return state;}",
 					"accumulateArgs": bson.A{"$playername"},
 					"merge":          "function(state, other) {for (var i = 0; i < other.length; i++) {for (var j = 0; j < state.length; j++) {if (state[j].playername == other[i].playername) {state[j].wins += other[i].wins;break;}state.push(other[i]);}}return state;}",
+					"finalize":       "function(state) {state.sort(function(a, b) {return b.wins - a.wins;});return state;}",
 					"lang":           "js",
 				},
 			},
 		}},
+		{"$sort": bson.M{"_id": 1}},
 	})
 
 	if err != nil {
