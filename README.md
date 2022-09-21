@@ -1,4 +1,5 @@
 # quake3-stats
+[![Go Report Card](https://goreportcard.com/badge/github.com/adobromilskiy/quake3-stats)](https://goreportcard.com/report/github.com/adobromilskiy/quake3-stats)
 Web application to show results of quake3 matches.
 
 ### Application parameters
@@ -13,6 +14,10 @@ Required parameters has no default value.
 
 
 ### Quick start
+
+```console
+docker run -p 8080:8080 --network mongo_network --restart always --name quake3-stats adobromilskiy/quake3-stats:latest --dbconn=mongodb://mongohost:27017 --dbname=quake3 --port=:8080
+```
 
 API endpoints:
 
