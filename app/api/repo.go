@@ -5,6 +5,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type MatchRepository struct {
@@ -335,6 +336,28 @@ func (r *MatchRepository) getMatches(mtype string, limit, skip int) (res []Match
 		{"$limit": limit},
 		{"$skip": skip},
 	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cur.All(r.Ctx, &res); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+func (r *MatchRepository) getLogs(limit, skip int) (res []Gamelog, err error) {
+	coll := r.DB.Collection("logs")
+	var cur *mongo.Cursor
+
+	opts := options.Find()
+	opts.SetSort(bson.D{{Key: "date", Value: -1}})
+	opts.SetLimit(int64(limit))
+	opts.SetSkip(int64(skip))
+
+	cur, err = coll.Find(r.Ctx, bson.M{}, opts)
 
 	if err != nil {
 		return nil, err

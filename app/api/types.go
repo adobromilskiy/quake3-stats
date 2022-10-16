@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -85,6 +86,17 @@ type (
 	Map struct {
 		Name    string      `json:"name" bson:"_id"`
 		Winners []MapWinner `json:"winners" bson:"winners"`
+	}
+
+	Gamelog struct {
+		ID    primitive.ObjectID `json:"id" bson:"_id"`
+		Kills []Kill             `json:"kills" bson:"kills"`
+		Date  time.Time          `json:"date" bson:"date"`
+	}
+
+	Kill struct {
+		Killer string `json:"killer" bson:"killer"`
+		Victim string `json:"victim" bson:"victim"`
 	}
 )
 

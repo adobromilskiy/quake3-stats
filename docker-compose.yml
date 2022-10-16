@@ -1,6 +1,10 @@
 volumes:
   quakedata:
 
+networks:
+  quakenet:
+    driver: bridge
+
 services:
   db:
     image: mongo:6.0
@@ -9,14 +13,20 @@ services:
       - quakedata:/data/db
     ports:
         - "27017:27017"
+    networks:
+      - quakenet
 
   app:
     build: .
     hostname: app
     command: --dbconn=mongodb://db:27017
+    networks:
+      - quakenet
 
   nginx:
     build: ./nginx
     hostname: nginx
     ports:
       - "8080:80"
+    networks:
+      - quakenet

@@ -32,6 +32,7 @@ func (s *Server) routes() *http.ServeMux {
 	mux.HandleFunc("/api/ffa", s.getFAAtotals)
 	mux.HandleFunc("/api/ffa/matches", s.getFAAmatches)
 	mux.HandleFunc("/api/ffa/players", s.getFAAplayers)
+	mux.HandleFunc("/api/ffa/logs", s.getFAAlogs)
 
 	return mux
 }
@@ -168,6 +169,42 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	err = json.NewEncoder(w).Encode(matches)
+	if err != nil {
+		log.Printf("[ERROR] failed to marshal data: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+// GET: /api/ffa/logs
+func (s *Server) getFAAlogs(w http.ResponseWriter, r *http.Request) {
+	repo := MatchRepository{
+		Ctx: r.Context(),
+		DB:  s.Database,
+	}
+
+	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page == 0 {
+		page = 1
+	}
+	if perpage == 0 {
+		perpage = 10
+	}
+	skip := (page - 1) * perpage
+	limit := skip + perpage
+
+	logs, err := repo.getLogs(limit, skip)
+	if err != nil {
+		log.Printf("[ERROR] failed to get logs: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(logs)
 	if err != nil {
 		log.Printf("[ERROR] failed to marshal data: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
