@@ -6,12 +6,12 @@ on:
     tags:
     paths:
       - ".github/workflows/ci-build.yml"
-      - "app/**""
+      - "app/**"
       - "Dockerfile"
   pull_request:
     paths:
       - ".github/workflows/ci-build.yml"
-      - "app/**""
+      - "app/**"
       - "Dockerfile"
 
 jobs:
