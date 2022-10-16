@@ -1,11 +1,23 @@
 name: build
 on:
   push:
+    branches:
+      - main
+    tags:
+    paths:
+      - ".github/workflows/ci-build.yml"
+      - "app/**""
+      - "Dockerfile"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-build.yml"
+      - "app/**""
+      - "Dockerfile"
 
 jobs:
 
-  build:
-    name: build
+  build-images:
+    name: build docker images
     runs-on: ubuntu-latest
     steps:
 
@@ -39,27 +51,3 @@ jobs:
         docker push adobromilskiy/quake3-stats:${GIT_TAG}
         docker tag adobromilskiy/quake3-stats:${GIT_TAG} adobromilskiy/quake3-stats:latest
         docker push adobromilskiy/quake3-stats:latest
-
-    - name: Make frontend archive
-      run: |
-        cd nginx
-        tar -czf $GITHUB_WORKSPACE/html.tar.gz html
-
-    - name: Deploy frontend archive
-      uses: cross-the-world/ssh-scp-ssh-pipelines@latest
-      env:
-        USER: ${{ secrets.USER }}
-      with:
-        host: ${{ secrets.HOST }}
-        user: ${{ secrets.USER }}
-        pass: ${{ secrets.PASSWORD }}
-        scp: |
-          $GITHUB_WORKSPACE/html.tar.gz => /home/${{ secrets.USER }}
-        last_ssh: |
-          sudo mv /home/${{ secrets.USER }}/html.tar.gz ${{ secrets.PROJECT_PATH }}
-          cd ${{ secrets.PROJECT_PATH }}
-          sudo tar -xzf html.tar.gz
-          sudo chown -R www-data:www-data ${{ secrets.PROJECT_PATH }}
-          sudo find ${{ secrets.PROJECT_PATH }} -type d -exec chmod 775 {} +
-          sudo find ${{ secrets.PROJECT_PATH }} -type f -exec chmod 664 {} +
-          sudo rm html.tar.gz
