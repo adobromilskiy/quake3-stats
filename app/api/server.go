@@ -11,7 +11,8 @@ import (
 
 type Server struct {
 	Port       string
-	Database   *mongo.Database
+	DbClient   *mongo.Client
+	DbName     string
 	httpServer *http.Server
 }
 
@@ -41,8 +42,9 @@ func (s *Server) routes() *http.ServeMux {
 func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
+	defer s.DbClient.Disconnect(r.Context())
 	players, err := repo.getPlayers()
 	if err != nil {
 		log.Printf("[ERROR] failed to get players: %s", err)
@@ -88,8 +90,9 @@ func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
+	defer s.DbClient.Disconnect(r.Context())
 	duration, err := repo.getTotalDuration()
 	if err != nil {
 		log.Printf("[ERROR] failed to get duration: %s", err)
@@ -144,8 +147,9 @@ func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
+	defer s.DbClient.Disconnect(r.Context())
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
@@ -180,8 +184,9 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getFAAlogs(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
+	defer s.DbClient.Disconnect(r.Context())
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
@@ -195,6 +200,7 @@ func (s *Server) getFAAlogs(w http.ResponseWriter, r *http.Request) {
 	limit := skip + perpage
 
 	logs, err := repo.getLogs(limit, skip)
+
 	if err != nil {
 		log.Printf("[ERROR] failed to get logs: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)

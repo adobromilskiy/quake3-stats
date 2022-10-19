@@ -17,11 +17,11 @@ func TestFAAtotalsHandler(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	db := client.Database("quake3")
 
 	srv := Server{
 		Port:     ":8080",
-		Database: db,
+		DbClient: client,
+		DbName:   "quake3",
 	}
 	srv.getFAAtotals(w, req)
 	res := w.Result()
@@ -37,11 +37,11 @@ func TestFAAplayersHandler(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	db := client.Database("quake3")
 
 	srv := Server{
 		Port:     ":8080",
-		Database: db,
+		DbClient: client,
+		DbName:   "quake3",
 	}
 	srv.getFAAplayers(w, req)
 	res := w.Result()
@@ -57,11 +57,11 @@ func TestFAAmatchesHandler(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	db := client.Database("quake3")
 
 	srv := Server{
 		Port:     ":8080",
-		Database: db,
+		DbClient: client,
+		DbName:   "quake3",
 	}
 	srv.getFAAmatches(w, req)
 	res := w.Result()
@@ -77,11 +77,11 @@ func TestFAAlogssHandler(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	client, _ := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	db := client.Database("quake3")
 
 	srv := Server{
 		Port:     ":8080",
-		Database: db,
+		DbClient: client,
+		DbName:   "quake3",
 	}
 	srv.getFAAlogs(w, req)
 	res := w.Result()

@@ -27,11 +27,11 @@ func main() {
 		log.Printf("[ERROR] can not connect to database: %v", err)
 		os.Exit(1)
 	}
-	db := client.Database(opts.DbName)
 
 	srv := api.Server{
 		Port:     opts.Port,
-		Database: db,
+		DbClient: client,
+		DbName:   opts.DbName,
 	}
 	srv.Run()
 }
