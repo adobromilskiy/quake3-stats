@@ -27,7 +27,7 @@ API endpoints:
 
 **GET:** /api/ffa - get ffa summary such as total games, maps and winners.
 
-**GET:** /api/ffa/mathes?page=2&perpage=20 - get last ffa mathes with pagination.
+**GET:** /api/ffa/matches?page=2&perpage=20 - get last ffa mathes with pagination.
 
 **GET** /api/ffa/players - get list of players with detailed summary.
 
