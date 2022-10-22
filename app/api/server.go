@@ -44,7 +44,7 @@ func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 		Ctx: r.Context(),
 		DB:  s.DbClient.Database(s.DbName),
 	}
-	defer s.DbClient.Disconnect(r.Context())
+
 	players, err := repo.getPlayers()
 	if err != nil {
 		log.Printf("[ERROR] failed to get players: %s", err)
@@ -92,7 +92,7 @@ func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 		Ctx: r.Context(),
 		DB:  s.DbClient.Database(s.DbName),
 	}
-	defer s.DbClient.Disconnect(r.Context())
+
 	duration, err := repo.getTotalDuration()
 	if err != nil {
 		log.Printf("[ERROR] failed to get duration: %s", err)
@@ -149,7 +149,6 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 		Ctx: r.Context(),
 		DB:  s.DbClient.Database(s.DbName),
 	}
-	defer s.DbClient.Disconnect(r.Context())
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
@@ -186,7 +185,6 @@ func (s *Server) getFAAlogs(w http.ResponseWriter, r *http.Request) {
 		Ctx: r.Context(),
 		DB:  s.DbClient.Database(s.DbName),
 	}
-	defer s.DbClient.Disconnect(r.Context())
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
