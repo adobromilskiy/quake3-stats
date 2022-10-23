@@ -152,10 +152,10 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
-	if perpage == 0 {
+	if perpage <= 0 {
 		perpage = 10
 	}
 	skip := (page - 1) * perpage
@@ -188,16 +188,15 @@ func (s *Server) getFAAlogs(w http.ResponseWriter, r *http.Request) {
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
-	if perpage == 0 {
+	if perpage <= 0 {
 		perpage = 10
 	}
 	skip := (page - 1) * perpage
-	limit := skip + perpage
 
-	logs, err := repo.getLogs(limit, skip)
+	logs, err := repo.getLogs(perpage, skip)
 
 	if err != nil {
 		log.Printf("[ERROR] failed to get logs: %s", err)
