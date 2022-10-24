@@ -50,8 +50,8 @@ jobs:
         docker buildx build --push --platform linux/amd64,linux/arm64 -t adobromilskiy/quake3-stats:latest .
 
     - name: build and push tagged image
-      if: github.event_name == 'push' && github.event.ref_type == 'tag'
+      if: github.event_name == 'push'
       run: |
-        GIT_TAG="${GITHUB_REF#refs/tags/}"
+        GIT_TAG="${GITHUB_REF#refs/tags/}" && github.ref != 'refs/heads/main'
         docker login --username ${{ secrets.DOCKERHUB_USER }} --password ${{ secrets.DOCKERHUB_PASSWD }}
-        docker buildx build --push --platform linux/amd64,linux/arm64 -t adobromilskiy/quake3-stats:${GIT_TAG} .
+        docker buildx build --push --platform linux/amd64,linux/arm64 -t adobromilskiy/quake3-stats:${{ github.ref_name }} .
