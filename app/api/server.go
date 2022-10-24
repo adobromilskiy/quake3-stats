@@ -11,7 +11,8 @@ import (
 
 type Server struct {
 	Port       string
-	Database   *mongo.Database
+	DbClient   *mongo.Client
+	DbName     string
 	httpServer *http.Server
 }
 
@@ -32,6 +33,7 @@ func (s *Server) routes() *http.ServeMux {
 	mux.HandleFunc("/api/ffa", s.getFAAtotals)
 	mux.HandleFunc("/api/ffa/matches", s.getFAAmatches)
 	mux.HandleFunc("/api/ffa/players", s.getFAAplayers)
+	mux.HandleFunc("/api/ffa/logs", s.getFAAlogs)
 
 	return mux
 }
@@ -40,8 +42,9 @@ func (s *Server) routes() *http.ServeMux {
 func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
+
 	players, err := repo.getPlayers()
 	if err != nil {
 		log.Printf("[ERROR] failed to get players: %s", err)
@@ -87,8 +90,9 @@ func (s *Server) getFAAplayers(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
+
 	duration, err := repo.getTotalDuration()
 	if err != nil {
 		log.Printf("[ERROR] failed to get duration: %s", err)
@@ -143,15 +147,15 @@ func (s *Server) getFAAtotals(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 	repo := MatchRepository{
 		Ctx: r.Context(),
-		DB:  s.Database,
+		DB:  s.DbClient.Database(s.DbName),
 	}
 
 	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
-	if perpage == 0 {
+	if perpage <= 0 {
 		perpage = 10
 	}
 	skip := (page - 1) * perpage
@@ -168,6 +172,42 @@ func (s *Server) getFAAmatches(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	err = json.NewEncoder(w).Encode(matches)
+	if err != nil {
+		log.Printf("[ERROR] failed to marshal data: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+// GET: /api/ffa/logs
+func (s *Server) getFAAlogs(w http.ResponseWriter, r *http.Request) {
+	repo := MatchRepository{
+		Ctx: r.Context(),
+		DB:  s.DbClient.Database(s.DbName),
+	}
+
+	perpage, _ := strconv.Atoi(r.URL.Query().Get("perpage"))
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page <= 0 {
+		page = 1
+	}
+	if perpage <= 0 {
+		perpage = 10
+	}
+	skip := (page - 1) * perpage
+
+	logs, err := repo.getLogs(perpage, skip)
+
+	if err != nil {
+		log.Printf("[ERROR] failed to get logs: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(logs)
 	if err != nil {
 		log.Printf("[ERROR] failed to marshal data: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)

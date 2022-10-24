@@ -27,10 +27,14 @@ API endpoints:
 
 **GET:** /api/ffa - get ffa summary such as total games, maps and winners.
 
-**GET:** /api/ffa/mathes?page=2&perpage=20 - get last ffa mathes with pagination.
+**GET:** /api/ffa/matches?page=2&perpage=20 - get last ffa mathes with pagination.
 
 **GET** /api/ffa/players - get list of players with detailed summary.
 
+**GET** /api/ffa/logs?page=2&perpage=20 - get logs of matches.
+
 Before use this stack you need to import into mongodb data from *xml files. You can use [quake3-importer](https://github.com/adobromilskiy/quake3-importer) for it.
+
+Before use this stack you need to import into mongodb data from qconsole.log file. You can use [quake3-logcatcher](https://github.com/adobromilskiy/quake3-logcatcher) for it.
 
 Frontend for stats app located in nginx directory. You can use it as example for your own frontend.
