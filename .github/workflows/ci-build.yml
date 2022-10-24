@@ -4,6 +4,7 @@ on:
     branches:
       - main
     tags:
+      - v*
     paths:
       - ".github/workflows/ci-build.yml"
       - "app/**"
